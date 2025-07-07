@@ -117,7 +117,7 @@ func printAdvancedInstructionsMessage(deplDir string) {
 }
 
 // TODO: move to expand.go
-func expandOrDie(path string ) (config.Blueprint, *config.YamlCtx) {
+func expandOrDie(path string) (config.Blueprint, *config.YamlCtx) {
 	bp, ctx, err := config.NewBlueprint(path)
 	checkErr(err, ctx)
 
@@ -154,7 +154,7 @@ func expandOrDie(path string ) (config.Blueprint, *config.YamlCtx) {
 }
 
 // TODO: move to expand.go
-func validateMaybeDie(bp config.Blueprint, ctx config.YamlCtx ) {
+func validateMaybeDie(bp config.Blueprint, ctx config.YamlCtx) {
 	err := validators.Execute(bp)
 	if err == nil {
 		return
