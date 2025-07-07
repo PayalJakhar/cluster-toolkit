@@ -27,6 +27,8 @@ import (
 	"github.com/spf13/pflag"
 
 	"hpc-toolkit/telemetry"
+
+	"hpc-toolkit/telemetry"
 )
 
 func addDeployFlags(c *cobra.Command) *cobra.Command {
@@ -58,7 +60,7 @@ func runDeployCmd(cmd *cobra.Command, args []string) {
 	
 	if checkDir(cmd, args) != nil { // arg[0] is BLUEPRINT_FILE
 		deplRoot = doCreate(args[0])
-		
+
 		if deplRoot == "" {
 			telemetry.LogEvent("deploy_error", args[0], "Blueprint creation returned empty deployment path during deploy",nil)
 			checkErr(fmt.Errorf("blueprint creation returned empty path"), nil)
@@ -66,6 +68,7 @@ func runDeployCmd(cmd *cobra.Command, args []string) {
 		}
 	} else { // arg[0] is DEPLOYMENT_DIRECTORY
 		deplRoot = args[0]
+
 
 		// check that no "create" flags were specified
 		cmd.Flags().VisitAll(func(f *pflag.Flag) {
@@ -98,7 +101,32 @@ func doDeployWithTelemetry(deplRoot string) (err error) {
 			err = fmt.Errorf("panic during deployment: %v", r)
 		}
 	}()
+
+	telemetry.LogEvent("deploy_start", deplRoot, "Starting deployment",nil)
+
+	defer func() {
+		if r := recover(); r != nil {
+			telemetry.LogEvent("deploy_error", deplRoot, fmt.Sprintf("Deployment panicked: %v", r),nil)
+			panic(r)
+		}
+	}()
+
+	err := doDeployWithTelemetry(deplRoot)
+	if err != nil {
+		telemetry.LogEvent("deploy_error", deplRoot, err.Error(),nil)
+	} else {
+		telemetry.LogEvent("deploy_success", deplRoot, "Deployment finished successfully",nil)
+	}
+}
+
+func doDeployWithTelemetry(deplRoot string) (err error) {
+	defer func() {
+		if r := recover(); r != nil {
+			err = fmt.Errorf("panic during deployment: %v", r)
+		}
+	}()
 	doDeploy(deplRoot)
+	return nil
 	return nil
 }
 
@@ -156,6 +184,7 @@ func validateRuntimeDependencies(deplDir string, groups []config.Group) error {
 		}
 		if err != nil {
 			telemetry.LogEvent("deploy_error", deplDir, fmt.Sprintf("Terraform configuration failed: %v", err),nil)
+			telemetry.LogEvent("deploy_error", deplDir, fmt.Sprintf("Terraform configuration failed: %v", err),nil)
 			return err
 		}
 	}
@@ -164,6 +193,7 @@ func validateRuntimeDependencies(deplDir string, groups []config.Group) error {
 
 func deployPackerGroup(moduleDir string, applyBehavior shell.ApplyBehavior) error {
 	if err := shell.ConfigurePacker(); err != nil {
+		telemetry.LogEvent("deploy_error", moduleDir, fmt.Sprintf("Terraform configuration failed: %v", err),nil)
 		telemetry.LogEvent("deploy_error", moduleDir, fmt.Sprintf("Terraform configuration failed: %v", err),nil)
 		return err
 	}
@@ -176,15 +206,18 @@ func deployPackerGroup(moduleDir string, applyBehavior shell.ApplyBehavior) erro
 		logging.Info("initializing packer module at %s", moduleDir)
 		if err := shell.ExecPackerCmd(moduleDir, false, "init", "."); err != nil {
 			telemetry.LogEvent("deploy_error",moduleDir, fmt.Sprintf("initializing packer module failed: %v", err),nil)
+			telemetry.LogEvent("deploy_error",moduleDir, fmt.Sprintf("initializing packer module failed: %v", err),nil)
 			return err
 		}
 		logging.Info("validating packer module at %s", moduleDir)
 		if err := shell.ExecPackerCmd(moduleDir, false, "validate", "."); err != nil {
 			telemetry.LogEvent("deploy_error",moduleDir, fmt.Sprintf("validating packer module failed: %v", err),nil)
+			telemetry.LogEvent("deploy_error",moduleDir, fmt.Sprintf("validating packer module failed: %v", err),nil)
 			return err
 		}
 		logging.Info("building image using packer module at %s", moduleDir)
 		if err := shell.ExecPackerCmd(moduleDir, true, "build", "."); err != nil {
+			telemetry.LogEvent("deploy_error",moduleDir, fmt.Sprintf("building image using packer module failed: %v", err),nil)
 			telemetry.LogEvent("deploy_error",moduleDir, fmt.Sprintf("building image using packer module failed: %v", err),nil)
 			return err
 		}
@@ -195,6 +228,7 @@ func deployPackerGroup(moduleDir string, applyBehavior shell.ApplyBehavior) erro
 func deployTerraformGroup(groupDir string, artifactsDir string, applyBehavior shell.ApplyBehavior, outputFormat shell.OutputFormat) error {
 	tf, err := shell.ConfigureTerraform(groupDir)
 	if err != nil {
+		telemetry.LogEvent("deploy_error", groupDir, fmt.Sprintf("Terraform configuration failed: %v", err),nil)
 		telemetry.LogEvent("deploy_error", groupDir, fmt.Sprintf("Terraform configuration failed: %v", err),nil)
 		return err
 	}
