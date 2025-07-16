@@ -29,6 +29,8 @@ import (
 	"hpc-toolkit/telemetry"
 )
 
+
+
 func addDeployFlags(c *cobra.Command) *cobra.Command {
 	return addJsonOutputFlag(
 		addGroupSelectionFlags(
@@ -57,14 +59,8 @@ func runDeployCmd(cmd *cobra.Command, args []string) {
 	var deplRoot string
 	
 	if checkDir(cmd, args) != nil { // arg[0] is BLUEPRINT_FILE
-		var err error
-		deplRoot, err = doCreate(args[0])
+		deplRoot = doCreate(args[0])
 		
-		if err != nil {
-			telemetry.LogEvent("deploy_error", args[0], fmt.Sprintf("Blueprint creation failed during deploy: %v", err),nil)
-			checkErr(fmt.Errorf("failed to create deployment from blueprint: %w", err), nil)
-			return
-		}
 		if deplRoot == "" {
 			telemetry.LogEvent("deploy_error", args[0], "Blueprint creation returned empty deployment path during deploy",nil)
 			checkErr(fmt.Errorf("blueprint creation returned empty path"), nil)
