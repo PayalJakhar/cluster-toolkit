@@ -75,9 +75,9 @@ data "google_compute_reservation" "specific" {
 }
 
 locals {
-  reservation_available_count = (local.input_specific_reservations_count == 1 && length(data.google_compute_reservation.specific[0].specific_reservation) > 0) ? (
-    coalesce(data.google_compute_reservation.specific[0].specific_reservation[0].count, 0) -
-    coalesce(data.google_compute_reservation.specific[0].specific_reservation[0].in_use_count, 0)
+  reservation_available_count = (local.input_specific_reservations_count == 1) ? (
+    try(data.google_compute_reservation.specific[0].specific_reservation[0].count, 0) -
+    try(data.google_compute_reservation.specific[0].specific_reservation[0].in_use_count, 0)
   ) : 0
 }
 
