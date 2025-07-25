@@ -76,8 +76,8 @@ data "google_compute_reservation" "specific" {
 
 locals {
   reservation_available_count = local.input_specific_reservations_count == 1 ? (
-    data.google_compute_reservation.specific[0].specific_reservation[0].count -
-    data.google_compute_reservation.specific[0].specific_reservation[0].in_use_count
+    coalesce(data.google_compute_reservation.specific[0].specific_reservation[0].count, 0) -
+    coalesce(data.google_compute_reservation.specific[0].specific_reservation[0].in_use_count, 0)
   ) : 0
 }
 
@@ -394,8 +394,8 @@ resource "google_container_node_pool" "node_pool" {
       error_message = "Both enable_flex_start and spot consumption option cannot be set to true at the same time."
     }
     precondition {
-      condition     = var.reservation_affinity.consume_reservation_type != "SPECIFIC_RESERVATION" || var.static_node_count <= local.reservation_available_count
-      error_message = "Requested static_node_count (${var.static_node_count}) exceeds the available reservation capacity (${local.reservation_available_count})."
+      condition     = var.reservation_affinity.consume_reservation_type != "SPECIFIC_RESERVATION" || (var.static_node_count != null && var.static_node_count <= local.reservation_available_count)
+      error_message = "Requested static_node_count (${coalesce(var.static_node_count, "not set")}) exceeds the available reservation capacity (${local.reservation_available_count})."
     }
     precondition {
       condition     = var.reservation_affinity.consume_reservation_type != "SPECIFIC_RESERVATION" || var.static_node_count == null || var.static_node_count > 0
@@ -403,7 +403,7 @@ resource "google_container_node_pool" "node_pool" {
     }
     precondition {
       condition     = local.input_specific_reservations_count == 1 || var.reservation_affinity.consume_reservation_type != "SPECIFIC_RESERVATION"
-      error_message = "Exactly one reservation must be specified in var.reservation_affinity.values when using SPECIFIC_RESERVATION."
+      error_message = "Exactly one reservation must be specified when using SPECIFIC_RESERVATION."
     }
   }
 }
