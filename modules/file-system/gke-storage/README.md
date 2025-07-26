@@ -145,7 +145,6 @@ No resources.
 | <a name="input_sc_topology_zones"></a> [sc\_topology\_zones](#input\_sc\_topology\_zones) | Zone location that allow the volumes to be dynamically provisioned. | `list(string)` | `null` | no |
 | <a name="input_sc_volume_binding_mode"></a> [sc\_volume\_binding\_mode](#input\_sc\_volume\_binding\_mode) | Indicates when volume binding and dynamic provisioning should occur and how PersistentVolumeClaims should be provisioned and bound.<br/>Supported value:<br/>- Immediate<br/>- WaitForFirstConsumer | `string` | `"WaitForFirstConsumer"` | no |
 | <a name="input_storage_type"></a> [storage\_type](#input\_storage\_type) | The type of [GKE supported storage options](https://cloud.google.com/kubernetes-engine/docs/concepts/storage-overview)<br/>to used. This module currently support dynamic provisioning for the below storage options<br/>- Hyperdisk-balanced<br/>- Hyperdisk-throughput<br/>- Hyperdisk-extreme | `string` | n/a | yes |
-| <a name="input_private_vpc_connection_peering"></a> [private\_vpc\_connection\_peering](#input\_private\_vpc\_connection\_peering) | The name of the VPC Network peering connection.<br/>If using new VPC, please use community/modules/network/private-service-access to create private-service-access and<br/>If using existing VPC with private-service-access enabled, set this manually follow [user guide](https://cloud.google.com/managed-lustre/docs/vpc). | `string` | `null` | no |
 
 ## Outputs
 

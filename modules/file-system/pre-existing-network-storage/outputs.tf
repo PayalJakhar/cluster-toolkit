@@ -54,14 +54,12 @@ locals {
   managed_lustre_client_install_script = file("${path.module}/scripts/install-managed-lustre-client.sh")
   nfs_client_install_script            = file("${path.module}/scripts/install-nfs-client.sh")
   gcs_fuse_install_script              = file("${path.module}/scripts/install-gcs-fuse.sh")
-  daos_client_install_script           = file("${path.module}/scripts/install-daos-client.sh")
 
   install_scripts = {
     "lustre"         = local.ddn_lustre_client_install_script
     "managed_lustre" = local.managed_lustre_client_install_script
     "nfs"            = local.nfs_client_install_script
     "gcsfuse"        = local.gcs_fuse_install_script
-    "daos"           = local.daos_client_install_script
   }
 
   client_install_runner = {

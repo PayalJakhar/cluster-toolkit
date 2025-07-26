@@ -78,7 +78,6 @@ This is similar to the `lustre` filesystem, with the exception that it connects
 with a managed Lustre instance hosted by GCP.  Currently only Rocky 8 and
 Ubuntu 20.04 and Ubuntu 22.04 are supported.
 
-
 ### Mounting
 
 For the `fs_type` listed below, this module will provide `client_install_runner`

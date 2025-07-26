@@ -125,13 +125,3 @@ variable "capacity_gb" {
   description = "The storage capacity with which to create the persistent volume."
   type        = number
 }
-
-variable "private_vpc_connection_peering" {
-  description = <<-EOT
-    The name of the VPC Network peering connection.
-    If using new VPC, please use community/modules/network/private-service-access to create private-service-access and
-    If using existing VPC with private-service-access enabled, set this manually follow [user guide](https://cloud.google.com/managed-lustre/docs/vpc).
-    EOT
-  type        = string
-  default     = null
-}
